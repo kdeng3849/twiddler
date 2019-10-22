@@ -55,36 +55,31 @@ def add_item(request):
     }
     return JsonResponse(context)
 
+@csrf_exempt
 def get_item(request, id):
     try:
-        query = Item.objects.get(id=id)
+        item = Item.objects.get(id=id)
         # query = list(Item.objects.filter(id=id).values('id', 'username', 'property', 'retweeted', 'content', 'timestamp'))
     except:
         context = {
             'status': 'error',
-            'error': 'Invalid item ID'
+            'error': 'Item not found',
         }
         return JsonResponse(context)
 
-    # data = serializers.serialize("json", item)
-    # data = ItemSerializer(item)
-    # print(data)
-    # jsondata = json.dumps(data)
-    # item = {}
-    # item['id'] = query.id
-    # item['username'] = query.username
-    # item['property'] = {}
-    # item['property']['likes'] = query.property.likes
-    # item['retweeted'] = query.retweeted
-    # item['content'] = query.content
-    # item['timestamp'] = query.timestamp
-    item = to_dict(query)
+    if request.method == 'DELETE':
+        # if not request.user.is_authenticated:
+        #     return JsonResponse({'status': 'error'})
+
+        item.delete()
+        return HttpResponse(status=200)
+
+    item = to_dict(item)
     context = {
         'status': 'OK',
         'item': item,
     }
 
-    # return HttpResponse(context, content_type='application/json')
     return JsonResponse(context)
 
 @csrf_exempt
