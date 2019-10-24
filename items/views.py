@@ -56,10 +56,10 @@ def add_item(request):
     return JsonResponse(context)
 
 @csrf_exempt
-def get_item(request, id):
+def get_item(request, item_id):
     try:
-        item = Item.objects.get(id=id)
-        # query = list(Item.objects.filter(id=id).values('id', 'username', 'property', 'retweeted', 'content', 'timestamp'))
+        item = Item.objects.get(id=item_id)
+        # query = list(Item.objects.filter(id=item_id).values('id', 'username', 'property', 'retweeted', 'content', 'timestamp'))
     except:
         context = {
             'status': 'error',
@@ -114,10 +114,10 @@ def like(request):
 
     data = json.loads(request.body, encoding='utf-8')
     print(data)
-    id = data['id']
+    item_id = data['id']
 
     try:
-        item = Item.objects.get(id=id)
+        item = Item.objects.get(id=item_id)
         item.property.likes += 1
         item.save()
     except:
