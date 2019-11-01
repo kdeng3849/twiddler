@@ -65,7 +65,7 @@ def get_item(request, item_id):
             'status': 'error',
             'error': 'Item not found',
         }
-        return JsonResponse(context)
+        return JsonResponse(context, status=404)
 
     if request.method == 'DELETE':
         # if not request.user.is_authenticated:

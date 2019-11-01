@@ -12,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .forms import AddUserForm, LoginForm
+from .models import Profile
 from .tokens import account_activation_token
 
 def index(request):
@@ -54,6 +55,9 @@ def add_user(request):
 
         # create user
         user = User.objects.create_user(username=username, password=password, email=email, is_active=False)
+        profile = Profile(user=user, followers=[], following=[])
+        profile.save()
+        # user.profile = profile
         user.save()
 
         current_site = get_current_site(request)
@@ -71,7 +75,10 @@ def add_user(request):
         email = EmailMessage(
             mail_subject, message, to=[to_email]
         )
-        email.send()
+        try:
+            email.send()
+        except:
+            pass
 
         return JsonResponse({"status": "OK"})
 
@@ -150,3 +157,7 @@ def logout_user(request):
     response.delete_cookie('username')
 
     return response
+
+
+# def get_user(request, username):
+#     user = Profile.object.get(user__username=username)

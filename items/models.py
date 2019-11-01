@@ -12,7 +12,7 @@ class ItemProperty(models.Model):
 class Item(models.Model):
     id = models.CharField(primary_key=True, max_length=50)
     # content = models.FileField()
-    username = models.CharField(max_length=50)
+    username = models.CharField(max_length=25)
     property = models.EmbeddedModelField(
         model_container=ItemProperty
     )
