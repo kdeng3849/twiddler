@@ -4,6 +4,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -159,5 +160,19 @@ def logout_user(request):
     return response
 
 
-# def get_user(request, username):
-#     user = Profile.object.get(user__username=username)
+def user_profile(request, username):
+    response = {
+        "status": "OK",
+        "user": {}
+    }
+    
+    try:
+        profile = Profile.objects.get(user__username=username)
+    except ObjectDoesNotExist:
+        return JsonResponse({"status": "error"})
+
+    response['user']['email'] = profile.user.email
+    response['user']['followers'] = profile.followers
+    response['user']['following'] = profile.following
+
+    return JsonResponse(response)
