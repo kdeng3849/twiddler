@@ -30,10 +30,11 @@ urlpatterns = [
     path('login', users.views.login_user, name='login'),
     path('logout', users.views.logout_user, name='logout'),
     path('user/<username>', users.views.user_profile, name='profile'),
+    path('user/<username>/followers', users.views.user_followers, name='followers'),
+    path('user/<username>/following', users.views.user_following, name='following'),
     path('home', items.views.home, name='home'),
     path('additem', items.views.add_item, name='additem'),
     path('item/<int:item_id>', items.views.get_item, name='getitem'),
     path('search', items.views.search, name='search'),
     path('like', items.views.like, name='like'),
-    # path('user/<username>', users.views.get_user, name='')
 ]

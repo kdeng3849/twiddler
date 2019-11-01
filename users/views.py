@@ -165,7 +165,7 @@ def user_profile(request, username):
         "status": "OK",
         "user": {}
     }
-    
+
     try:
         profile = Profile.objects.get(user__username=username)
     except ObjectDoesNotExist:
@@ -174,5 +174,35 @@ def user_profile(request, username):
     response['user']['email'] = profile.user.email
     response['user']['followers'] = profile.followers
     response['user']['following'] = profile.following
+
+    return JsonResponse(response)
+
+def user_followers(request, username):
+    response = {
+        "status": "OK",
+        "users": []
+    }
+
+    try:
+        profile = Profile.objects.get(user__username=username)
+    except ObjectDoesNotExist:
+        return JsonResponse({"status": "error"})
+    
+    response['users'] = profile.followers
+
+    return JsonResponse(response)
+
+def user_following(request, username):
+    response = {
+        "status": "OK",
+        "users": []
+    }
+    
+    try:
+        profile = Profile.objects.get(user__username=username)
+    except ObjectDoesNotExist:
+        return JsonResponse({"status": "error"})
+
+    response['users'] = profile.following
 
     return JsonResponse(response)
