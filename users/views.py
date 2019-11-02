@@ -12,6 +12,8 @@ from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from items.models import Item
+from items.utils import to_dict
 from .forms import AddUserForm, LoginForm
 from .models import Profile
 from .tokens import account_activation_token
@@ -174,6 +176,18 @@ def user_profile(request, username):
     response['user']['email'] = profile.user.email
     response['user']['followers'] = profile.count_followers()
     response['user']['following'] = profile.count_following()
+
+    return JsonResponse(response)
+
+def user_posts(request, username):
+    response = {
+        "status": "OK",
+        "items": []
+    }
+
+    query = list(Item.objects.filter(username=username))
+    for item in query:
+        response['items'].append(to_dict(item))
 
     return JsonResponse(response)
 

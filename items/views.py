@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from users.models import Profile
 from .models import Item, ItemProperty
 # from .serializers import ItemSerializer
 from .utils import to_dict
@@ -87,6 +88,11 @@ def search(request):
     data = json.loads(request.body, encoding='utf-8') if request.body else {}
     timestamp = data.get('timestamp') or time.time()
     limit = data.get('limit') or 25
+    q = data.get('q')
+    username = data.get('username')
+    following = data.get('following')
+
+    print(data)
 
     if limit > 100:
         response = {
@@ -95,12 +101,23 @@ def search(request):
         }
         return JsonResponse(response)
 
+    users_following = []
+    if following:
+        profile = Profile.objects.get(username=request.user.username)
+        users_following += profile.get_following()
+
     response = {
         'status': 'OK',
         'items': [],
     }
 
-    query = list(Item.objects.filter(timestamp__lte=timestamp).order_by('-timestamp')[:limit])
+    timestamp_query = Item.objects.filter(timestamp__lte=timestamp).order_by('-timestamp')
+    username_query = Item.objects.filter(username=username)
+    following_query = Item.objects.filter(username__in=users_following)
+
+    # query = timestamp_query & username_query & following_query
+    query = timestamp_query
+    query = list(query[:limit])
     for item in query:
         response['items'].append(to_dict(item))
 
