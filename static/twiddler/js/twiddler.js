@@ -9,12 +9,19 @@ $(function () {
         window.location.replace(page)
     }
 
-    $('#test').click(() => {
-        var data = {
-            "id": "093019215306"
-        }
+    $('form.follow').submit(function(event) {
+        event.preventDefault();
+
+        var data = $(this).serializeArray().reduce((dict, field) => {
+            dict[field.name] = field.value;
+            return dict;
+        }, {});
+
+        data['follow'] = true;
+
+        console.log(data)
         
-        fetch("/getgame", {
+        fetch("/follow", {
             method: "POST",
             mode: "cors",
             cache: "no-cache",
@@ -31,6 +38,11 @@ $(function () {
         })
         .then(response => {
             console.log(response);
+
+            if(response.status == "OK")
+                showPage('home')
+                // renderView();
+                // resetGame();
         })
     })
 
