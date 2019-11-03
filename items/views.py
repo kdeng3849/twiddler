@@ -3,6 +3,7 @@ import json
 import uuid
 
 from django.core import serializers
+from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -61,7 +62,7 @@ def get_item(request, item_id):
     try:
         item = Item.objects.get(id=item_id)
         # query = list(Item.objects.filter(id=item_id).values('id', 'username', 'property', 'retweeted', 'content', 'timestamp'))
-    except:
+    except ObjectDoesNotExist:
         context = {
             'status': 'error',
             'error': 'Item not found',
@@ -69,12 +70,18 @@ def get_item(request, item_id):
         return JsonResponse(context, status=404)
 
     if request.method == 'DELETE':
-        # if not request.user.is_authenticated:
-        #     return JsonResponse({'status': 'error'})
+        if not request.user.is_authenticated or not item.username == request.user.username:
+            response = {
+                'status': 'error',
+                'error': 'You do not have permission to perform this action'
+            }
+            return JsonResponse(response, status=403)
 
+        # user is logged in and is the author of the post
         item.delete()
         return HttpResponse(status=200)
 
+    # method is not DELETE
     item = to_dict(item)
     context = {
         'status': 'OK',
@@ -148,7 +155,7 @@ def like(request):
         item = Item.objects.get(id=item_id)
         item.property.likes += 1
         item.save()
-    except:
+    except ObjectDoesNotExist:
         return JsonResponse({'status': 'error'})
 
     response = {
