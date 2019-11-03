@@ -17,7 +17,7 @@ $(function () {
             return dict;
         }, {});
 
-        data['follow'] = true;
+        data['follow'] = false;
 
         console.log(data)
         

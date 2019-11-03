@@ -185,11 +185,11 @@ def user_posts(request, username):
         "items": []
     }
 
-    limit = int(request.GET.get('limit')) or 50
+    limit = limit = int(request.GET.get('limit')) if request.GET.get('limit') else 50
     if limit not in range(201):
         response = {
             "status": "error",
-            "error": "Limit must be between 1 and 200 inclusive"
+            "error": "Limit is a maximum of 200"
         }
         return JsonResponse(response)
 
@@ -205,11 +205,11 @@ def user_followers(request, username):
         "users": []
     }
 
-    limit = int(request.GET.get('limit')) or 50
+    limit = int(request.GET.get('limit')) if request.GET.get('limit') else 50
     if limit not in range(201):
         response = {
             "status": "error",
-            "error": "Limit must be between 1 and 200 inclusive"
+            "error": "Limit is a maximum of 200"
         }
         return JsonResponse(response)
 
@@ -228,11 +228,11 @@ def user_following(request, username):
         "users": []
     }
 
-    limit = int(request.GET.get('limit')) or 50
+    limit = int(request.GET.get('limit')) if request.GET.get('limit') else 50
     if limit not in range(201):
         response = {
             "status": "error",
-            "error": "Limit must be between 1 and 200 inclusive"
+            "error": "Limit is a maximum of 200"
         }
         return JsonResponse(response)
 
@@ -258,6 +258,7 @@ def follow_user(request):
     follow = data['follow']
 
     try:
+        print(request.user.username, username, follow)
         profile_following = Profile.objects.get(user__username=request.user.username)
         profile_followed = Profile.objects.get(user__username=username)
         user_followed = User.objects.get(username=username)
