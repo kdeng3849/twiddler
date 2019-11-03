@@ -15,7 +15,6 @@ from .models import Item, ItemProperty
 from .utils import to_dict
 
 def home(request):
-
     context = {
         'items': []
     }
@@ -23,6 +22,7 @@ def home(request):
     for item in query:
         context['items'].append(to_dict(item))
 
+    print(request.COOKIES)
     return render(request, 'items/home.html', context)
 
 @csrf_exempt
@@ -102,10 +102,10 @@ def search(request):
     print(data)
     print(request.user.username)
 
-    if limit > 100:
+    if limit not in range(101):
         response = {
             'status': 'error',
-            'error': 'limit must not be greater than 100'
+            'error': 'Limit must be between 1 and 100 inclusive'
         }
         return JsonResponse(response)
 

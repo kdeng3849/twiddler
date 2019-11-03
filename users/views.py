@@ -185,7 +185,15 @@ def user_posts(request, username):
         "items": []
     }
 
-    query = list(Item.objects.filter(username=username))
+    limit = int(request.GET.get('limit')) or 50
+    if limit not in range(201):
+        response = {
+            "status": "error",
+            "error": "Limit must be between 1 and 200 inclusive"
+        }
+        return JsonResponse(response)
+
+    query = list(Item.objects.filter(username=username).order_by('-timestamp'))[:limit]
     for item in query:
         response['items'].append(to_dict(item))
 
@@ -197,12 +205,20 @@ def user_followers(request, username):
         "users": []
     }
 
+    limit = int(request.GET.get('limit')) or 50
+    if limit not in range(201):
+        response = {
+            "status": "error",
+            "error": "Limit must be between 1 and 200 inclusive"
+        }
+        return JsonResponse(response)
+
     try:
         profile = Profile.objects.get(user__username=username)
     except ObjectDoesNotExist:
         return JsonResponse({"status": "error"})
-    
-    response['users'] = profile.followers
+
+    response['users'] = profile.get_followers()[:limit]
 
     return JsonResponse(response)
 
@@ -211,13 +227,21 @@ def user_following(request, username):
         "status": "OK",
         "users": []
     }
-    
+
+    limit = int(request.GET.get('limit')) or 50
+    if limit not in range(201):
+        response = {
+            "status": "error",
+            "error": "Limit must be between 1 and 200 inclusive"
+        }
+        return JsonResponse(response)
+
     try:
         profile = Profile.objects.get(user__username=username)
     except ObjectDoesNotExist:
         return JsonResponse({"status": "error"})
 
-    response['users'] = profile.following
+    response['users'] = profile.get_following()[:limit]
 
     return JsonResponse(response)
 
@@ -227,8 +251,6 @@ def follow_user(request):
     response = {
         "status": "OK"
     }
-
-    print(request.COOKIES)
 
     data = json.loads(request.body.decode('utf-8'))
     # print(data)
