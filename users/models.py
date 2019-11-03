@@ -37,13 +37,17 @@ class Profile(models.Model):
 
     def remove_follower(self, username):
         followers = self.get_followers()
-        followers.remove(username)
-        self.followers = ' '.join(followers)
+
+        if username in followers:
+            followers.remove(username)
+            self.followers = ' '.join(followers)
 
     def remove_following(self, username):
         following = self.get_following()
-        following.remove(username)
-        self.followers = ' '.join(following)
+
+        if username in following:
+            following.remove(username)
+            self.following = ' '.join(following)
 
     def count_followers(self):
         return len(self.get_followers())

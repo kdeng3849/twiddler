@@ -253,31 +253,24 @@ def follow_user(request):
     }
 
     data = json.loads(request.body.decode('utf-8'))
-    # print(data)
     username = data['username']
     follow = data['follow']
 
     try:
-        print(request.user.username, username, follow)
         profile_following = Profile.objects.get(user__username=request.user.username)
         profile_followed = Profile.objects.get(user__username=username)
         user_followed = User.objects.get(username=username)
-    except ObjectDoesNotExist as error:
-        print(error)
+    except ObjectDoesNotExist:
         return JsonResponse({"status": "error"})
 
-    print("user following", request.user.username)
-    print("user followed", user_followed)
     if follow:
         profile_following.add_following(user_followed.username)
         profile_followed.add_follower(request.user.username)
-        # profile_following.following.append(user_followed)
-        # profile_followed.followers.append(request.user)
+
     else:
         profile_following.remove_following(user_followed.username)
         profile_followed.remove_follower(request.user.username)
-        # profile_following.following.remove(user_followed)
-        # profile_followed.followers.remove(request.user)
+
 
     profile_following.save()
     profile_followed.save()
