@@ -93,6 +93,7 @@ def search(request):
     following = data.get('following')
 
     print(data)
+    print(request.user.username)
 
     if limit > 100:
         response = {
@@ -101,22 +102,32 @@ def search(request):
         }
         return JsonResponse(response)
 
-    users_following = []
-    if following:
-        profile = Profile.objects.get(username=request.user.username)
-        users_following += profile.get_following()
-
     response = {
         'status': 'OK',
         'items': [],
     }
 
-    timestamp_query = Item.objects.filter(timestamp__lte=timestamp).order_by('-timestamp')
-    username_query = Item.objects.filter(username=username)
-    following_query = Item.objects.filter(username__in=users_following)
+    query = Item.objects.filter(timestamp__lte=timestamp).order_by('-timestamp')
+
+    if q:
+        keywords_query = Item.objects.none()
+        keywords = q.split()
+        for keyword in keywords:
+            keywords_query |= Item.objects.filter(content__icontains=keyword)
+        query &= keywords_query
+
+    if username:
+        username_query = Item.objects.filter(username=username)
+        query &= username_query
+
+    if following and request.user.is_authenticated:
+        # print(request.user.username)
+        profile = Profile.objects.get(user__username=request.user.username)
+        following_query = Item.objects.filter(username__in=profile.get_following())
+        query &= following_query
 
     # query = timestamp_query & username_query & following_query
-    query = timestamp_query
+    # query = timestamp_query
     query = list(query[:limit])
     for item in query:
         response['items'].append(to_dict(item))
